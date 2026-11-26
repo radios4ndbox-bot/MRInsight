@@ -1,0 +1,16 @@
+# configurazione locale degli strumenti
+.claude/
+.vscode/
+node_modules/
+
+# segreti: non devono MAI finire nel repository
+.env
+.env.*
+*.pem
+supabase/.temp/
+
+# backup dei contenuti privati: restano sul tuo PC, mai nel repo
+backup/
+backups/
+*.zip
+MRInsight-backup-*
