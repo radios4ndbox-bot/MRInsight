@@ -27,9 +27,9 @@ supabase/migrations/       migrazioni SQL da eseguire nel SQL Editor
 
 1. ✅ Pagina di test: sito e Supabase raggiungibili dal PC di reparto
 2. ✅ Login con email, password e TOTP; RLS su tutte le tabelle e sullo storage
-3. RM prostata completa: pre-referto e appunti
-4. Editor a blocchi (testo, tabella, immagine, checklist)
-5. Collegamenti ⓘ dal referto agli appunti
+3. ✅ MRI progress: mappa 3D del corpo a zone, esami per zona
+4. Appunti di ogni esame: pagine con editor a blocchi (testo, tabella, immagine, checklist)
+5. MRI reports: pre-referti per esame e area valutata, con collegamenti ⓘ agli appunti
 6. Backup: esportazione completa, immagini comprese
 7. Passkey o app personale con QR
 
@@ -50,6 +50,10 @@ supabase/migrations/       migrazioni SQL da eseguire nel SQL Editor
 4. Vai in **Sicurezza → Aggiungi dispositivo** e registra un **secondo** dispositivo, per esempio un tablet o un secondo telefono. In alternativa stampa la chiave mostrata sotto il QR e conservala in un luogo sicuro.
 5. In **Esami → Stato dell'accesso** tutte le voci devono essere verdi, compresa *RLS senza secondo fattore*.
 6. **Actions → Keep-alive Supabase → Run workflow**: verifica che il ping funzioni.
+
+### Migrazione 0002: zone degli esami
+
+In **SQL Editor → New query** incolla `supabase/migrations/0002_zone_esami.sql` e premi **Run**. Aggiunge la zona anatomica agli esami; le policy RLS restano quelle della 0001.
 
 ### Come funziona la protezione
 

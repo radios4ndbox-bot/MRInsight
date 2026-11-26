@@ -18,18 +18,21 @@
 <body>
 
 <nav>
-  <a class="nav-brand" href="#/esami">
+  <a class="nav-brand" href="#/progress">
     <span class="nav-title"><span class="nav-logo" id="navLogo"></span><span><b>MRInsight</b> <span class="by">· by StructuRad</span></span></span>
     <span class="nav-sub">Hub personale di risonanza magnetica</span>
   </a>
   <div class="nav-dock" id="navDock" hidden>
     <span class="nav-tab-highlight" id="dockHighlight"></span>
-    <a class="dock-item" href="#/esami" data-rotta="esami">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
-      Esami</a>
+    <a class="dock-item" href="#/progress" data-rotta="progress">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="4.5" r="2.5"/><path d="M12 7v7"/><path d="M6.5 9.5L12 8l5.5 1.5"/><path d="M9.5 21l2.5-7 2.5 7"/></svg>
+      <span>MRI progress</span></a>
+    <a class="dock-item" href="#/reports" data-rotta="reports">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg>
+      <span>MRI reports</span></a>
     <a class="dock-item" href="#/sicurezza" data-rotta="sicurezza">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6l8-3z"/><path d="M9 12l2 2 4-4"/></svg>
-      Sicurezza</a>
+      <span>Sicurezza</span></a>
   </div>
   <div class="nav-right">
     <span class="live-pill" id="pillSessione" hidden title="Logout automatico dopo 15 minuti di inattività"><span class="live-dot"></span><span id="pillTempo">15:00</span></span>
@@ -101,18 +104,55 @@
   </section>
 
   <!-- ════ area privata: esami ════ -->
-  <section class="vista page" data-vista="esami" hidden>
+  <section class="vista page page-larga" data-vista="progress" hidden>
     <header class="page-head pop-section">
-      <div class="kicker">Area privata</div>
-      <h1>Esami</h1>
-      <p class="lead">Le schede (pre-referto, protocollo, appunti, score) arrivano con la fase 3, a partire dalla RM prostata.</p>
+      <div class="kicker">MRI progress</div>
+      <h1>Mappa del corpo</h1>
+      <p class="lead">Scegli una zona sul modello o dall'elenco: dentro trovi gli esami e, con il prossimo passo, i tuoi appunti.</p>
     </header>
     <div class="avviso" id="avvisoUnFattore" hidden>
       Hai un solo secondo fattore: se perdi il telefono resti fuori. <a href="#/sicurezza">Aggiungine un altro</a>.
     </div>
+    <div class="progress-griglia">
+      <div class="corpo3d pop-section" id="mappaCorpo">
+        <div class="corpo3d-stato" id="statoMappa">Caricamento del modello…</div>
+        <button class="corpo3d-reimposta" id="btnVistaIniziale" type="button" title="Vista iniziale (anche con doppio clic)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>
+          Vista iniziale</button>
+        <div class="corpo3d-aiuto">trascina per ruotare · rotella per lo zoom</div>
+        <div class="corpo3d-fonte">Modello: BodyParts3D © DBCLS · CC BY 4.0</div>
+      </div>
+      <aside class="card pop-section pannello-zona">
+        <div class="card-head">
+          <span class="card-num" id="numZona">—</span><h2 class="card-title" id="titoloZona">Zone</h2>
+          <span class="spacer"></span>
+          <button class="btn-link" id="btnTutteZone" type="button" hidden>Tutte le zone</button>
+        </div>
+        <div class="card-body">
+          <div class="zone-chips" id="elencoZone"></div>
+          <div id="dettaglioZona" hidden>
+            <ul class="esami-lista" id="listaEsami"></ul>
+            <p class="hint esami-vuoti" id="esamiVuoti" hidden>Nessun esame in questa zona: aggiungi il primo.</p>
+            <form class="nuovo-esame" id="formEsame" autocomplete="off">
+              <input type="text" id="inTitoloEsame" maxlength="120" placeholder="RM spalla" aria-label="Nome del nuovo esame">
+              <button class="btn-primary" id="btnCreaEsame" type="submit">Aggiungi</button>
+            </form>
+            <div class="avviso" id="msgEsami" hidden></div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ════ MRI reports ════ -->
+  <section class="vista page" data-vista="reports" hidden>
+    <header class="page-head pop-section">
+      <div class="kicker">MRI reports</div>
+      <h1>Pre-referti</h1>
+      <p class="lead">Qui arriveranno i pre-referti, divisi per esame e area valutata: campi da compilare a sinistra, testo pronto da copiare nel PACS a destra.</p>
+    </header>
     <section class="card pop-section">
-      <div class="card-head"><span class="card-num">✓</span><h2 class="card-title">Stato dell'accesso</h2><span class="spacer"></span><span class="badge" id="badgeStato">—</span></div>
-      <div class="card-body"><ul class="checks" id="listaStato"></ul></div>
+      <div class="card-body testo">In costruzione: prima completiamo MRI progress (esami e appunti), poi i pre-referti useranno gli stessi esami.</div>
     </section>
   </section>
 
@@ -123,6 +163,11 @@
       <h1>Sicurezza</h1>
       <p class="lead">Fattori di accesso e sessioni. Tieni sempre almeno due dispositivi registrati.</p>
     </header>
+
+    <section class="card pop-section">
+      <div class="card-head"><span class="card-num">✓</span><h2 class="card-title">Stato dell'accesso</h2><span class="spacer"></span><span class="badge" id="badgeStato">—</span></div>
+      <div class="card-body"><ul class="checks" id="listaStato"></ul></div>
+    </section>
 
     <section class="card pop-section">
       <div class="card-head"><span class="card-num">01</span><h2 class="card-title">App authenticator</h2><span class="spacer"></span><span class="badge" id="badgeFattori">—</span></div>

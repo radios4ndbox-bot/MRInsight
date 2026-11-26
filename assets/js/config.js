@@ -14,5 +14,5 @@ export const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_AQsLs05zBJt1h9anRyaHDQ_p
 export const APP = {
   nome: 'MRInsight',
   firma: 'by StructuRad',
-  versione: '0.2.0-fase2',
+  versione: '0.3.0-progress',
 };

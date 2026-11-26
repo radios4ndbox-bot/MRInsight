@@ -332,6 +332,7 @@ export async function montaCorpo3D(contenitore, { onZona = () => {}, onPassaggio
     selezione = id;
     ridisegna = true;
     const c = id && centroZona(id);
+    if (!id) obiettivo = { ...INIZIO, yaw: obiettivo.yaw };
     if (c) {
       obiettivo.cy = c.y;
       obiettivo.dist = Math.max(altezza * 0.6, Math.min(altezza * 1.6, c.alto * 5));
@@ -350,6 +351,7 @@ export async function montaCorpo3D(contenitore, { onZona = () => {}, onPassaggio
     zone: zone.map((z) => ({ id: z.id, nome: z.nome })),
     fonte: modello.header.fonte,
     seleziona: (id) => seleziona(id, false),
+    evidenzia(id) { if (id !== passaggio) { passaggio = id; ridisegna = true; } },
     reimposta,
     distruggi() {
       cancelAnimationFrame(anim);

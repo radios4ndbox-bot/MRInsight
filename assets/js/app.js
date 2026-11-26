@@ -1,12 +1,14 @@
-// MRInsight — applicazione (fase 2: accesso con TOTP, RLS, sessione non persistente).
+// MRInsight — applicazione: accesso con TOTP, RLS, sessione non persistente, area MRI progress.
 
 import { sb, configurato, messaggioErrore } from './sb.js';
 import * as auth from './auth.js';
 import * as inattivita from './inattivita.js';
 import { inserisciLogo, ICONE, copiaTesto } from './ui.js';
+import { apriProgress } from './progress.js';
 
 const $ = (id) => document.getElementById(id);
-const ROTTE_PRIVATE = ['esami', 'sicurezza'];
+const ROTTE_PRIVATE = ['progress', 'reports', 'sicurezza'];
+const ROTTA_INIZIALE = 'progress';
 
 const stato = {
   dentro: false,          // sessione aal2 attiva
@@ -217,7 +219,7 @@ async function entra() {
     ripreso: () => { $('bannerInattivita').hidden = true; $('pillSessione').classList.remove('scade'); },
     scaduto: () => esci('local', 'Sessione chiusa dopo 15 minuti di inattività.'),
   });
-  if (!ROTTE_PRIVATE.includes(rottaCorrente())) location.hash = '#/esami';
+  if (!ROTTE_PRIVATE.includes(rottaCorrente())) location.hash = `#/${ROTTA_INIZIALE}`;
   else await suRotta();
 }
 
@@ -226,10 +228,20 @@ const rottaCorrente = () => (location.hash.match(/^#\/([a-z-]+)/) || [])[1] || '
 async function suRotta() {
   if (!stato.dentro) return;
   const r = rottaCorrente();
-  const rotta = ROTTE_PRIVATE.includes(r) ? r : 'esami';
+  const rotta = ROTTE_PRIVATE.includes(r) ? r : ROTTA_INIZIALE;
   mostraVista(rotta);
-  if (rotta === 'esami') await caricaStato();
-  if (rotta === 'sicurezza') await caricaFattori();
+  if (rotta === 'progress') {
+    controllaFattori();
+    await apriProgress({ toast });
+  }
+  if (rotta === 'sicurezza') await Promise.all([caricaStato(), caricaFattori()]);
+}
+
+async function controllaFattori() {
+  try {
+    const { verificati } = await auth.fattori();
+    $('avvisoUnFattore').hidden = verificati.length >= 2;
+  } catch (_) { /* non bloccante */ }
 }
 
 function rigaControllo(lista, nome, esito, dettaglio) {
@@ -254,7 +266,6 @@ async function caricaStato() {
     aal.currentLevel === 'aal2' ? 'sessione aal2 (password + TOTP)' : `livello ${aal.currentLevel}`));
 
   const { verificati } = await auth.fattori();
-  $('avvisoUnFattore').hidden = verificati.length >= 2;
   esiti.push(rigaControllo(lista, 'Dispositivi registrati', verificati.length >= 2 ? 'ok' : 'warn',
     `${verificati.length} ${verificati.length === 1 ? 'dispositivo' : 'dispositivi'}${verificati.length < 2 ? ' — consigliati almeno 2' : ''}`));
 
@@ -405,7 +416,7 @@ function collega() {
     }
   });
   window.addEventListener('hashchange', suRotta);
-  window.addEventListener('resize', () => { if (stato.dentro) aggiornaDock(rottaCorrente() || 'esami'); });
+  window.addEventListener('resize', () => { if (stato.dentro) aggiornaDock(rottaCorrente() || ROTTA_INIZIALE); });
 
   if (sb) {
     sb.auth.onAuthStateChange((evento) => {
