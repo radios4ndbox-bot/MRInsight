@@ -28,7 +28,7 @@ supabase/migrations/       migrazioni SQL da eseguire nel SQL Editor
 1. ✅ Pagina di test: sito e Supabase raggiungibili dal PC di reparto
 2. ✅ Login con email, password e TOTP; RLS su tutte le tabelle e sullo storage
 3. ✅ MRI progress: mappa 3D del corpo a zone, esami per zona
-4. Appunti di ogni esame: pagine con editor a blocchi (testo, tabella, immagine, checklist)
+4. ✅ Appunti di ogni esame: pagine e sottopagine con editor a blocchi (testo, titoli, elenchi, checklist, pitfall, nota, tabella); immagini in arrivo
 5. MRI reports: pre-referti per esame e area valutata, con collegamenti ⓘ agli appunti
 6. Backup: esportazione completa, immagini comprese
 7. Passkey o app personale con QR
@@ -54,6 +54,10 @@ supabase/migrations/       migrazioni SQL da eseguire nel SQL Editor
 ### Migrazione 0002: zone degli esami
 
 In **SQL Editor → New query** incolla `supabase/migrations/0002_zone_esami.sql` e premi **Run**. Aggiunge la zona anatomica agli esami; le policy RLS restano quelle della 0001.
+
+### Migrazione 0003: pagine di appunti
+
+Incolla `supabase/migrations/0003_pagine_appunti.sql` nel SQL Editor e premi **Run**. Aggiunge le sottopagine e una regola che impedisce di agganciare una pagina a un esame o a una pagina altrui. La cronologia salva una versione al massimo ogni 10 minuti (le ultime 50 per pagina).
 
 ### Come funziona la protezione
 

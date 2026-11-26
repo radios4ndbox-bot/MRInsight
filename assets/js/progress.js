@@ -2,6 +2,9 @@
 
 import { sb, messaggioErrore } from './sb.js';
 import { ZONE, zonaDa } from './zone.js';
+import { apriEsame, salvaInSospeso } from './esame.js';
+
+export { salvaInSospeso };
 
 const $ = (id) => document.getElementById(id);
 const ICONA_CESTINO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M10 11v6M14 11v6"/><path d="M6 7l1 13h10l1-13"/><path d="M9 7V4h6v3"/></svg>';
@@ -16,10 +19,16 @@ const vai = (id) => {
   const h = id ? `#/progress/${id}` : '#/progress';
   if (location.hash !== h) location.hash = h;
 };
-const zonaDaHash = () => {
-  const id = (location.hash.match(/^#\/progress\/([a-z-]+)/) || [])[1];
-  return zonaDa(id) ? id : null;
-};
+/** #/progress/<zona>/<esame>/<pagina> */
+function leggiHash() {
+  const [, , zona, esame, pagina] = location.hash.split('/');
+  const uuid = /^[0-9a-f-]{36}$/;
+  return {
+    zona: zonaDa(zona) ? zona : null,
+    esame: uuid.test(esame || '') ? esame : null,
+    pagina: uuid.test(pagina || '') ? pagina : null,
+  };
+}
 
 function messaggio(testo, tipo = '') {
   const el = $('msgEsami');
@@ -117,11 +126,11 @@ function rigaEsame(esame, i) {
   const li = document.createElement('li');
   li.className = 'esame';
   li.style.animationDelay = `${i * 40}ms`;
-  li.innerHTML = '<button type="button" class="esame-apri"><span class="esame-titolo"></span><span class="esame-info">appunti in arrivo con l\'editor</span></button><button type="button" class="esame-elimina" title="Elimina esame"></button>';
+  li.innerHTML = '<button type="button" class="esame-apri"><span class="esame-titolo"></span><span class="esame-info">apri gli appunti</span></button><button type="button" class="esame-elimina" title="Elimina esame"></button>';
   li.querySelector('.esame-titolo').textContent = esame.title;
   li.querySelector('.esame-elimina').innerHTML = ICONA_CESTINO;
   li.querySelector('.esame-elimina').setAttribute('aria-label', `Elimina ${esame.title}`);
-  li.querySelector('.esame-apri').addEventListener('click', () => avvisa('Le pagine di appunti arrivano con l\'editor, il prossimo passo.'));
+  li.querySelector('.esame-apri').addEventListener('click', () => { location.hash = `#/progress/${zonaAttiva}/${esame.id}`; });
   li.querySelector('.esame-elimina').addEventListener('click', () => elimina(esame));
   return li;
 }
@@ -176,5 +185,20 @@ export async function apriProgress({ toast }) {
     $('btnVistaIniziale').addEventListener('click', () => vai(null));
     montaMappa();
   }
-  await mostraZona(zonaDaHash());
+  const h = leggiHash();
+  if (h.esame) {
+    $('progressMappa').hidden = true;
+    $('progressEsame').hidden = false;
+    try {
+      await apriEsame({ examId: h.esame, pageId: h.pagina, toast });
+    } catch (e) {
+      const manca = e && (e.code === '42703' || /parent_id/.test(e.message || ''));
+      toast(manca ? 'Database da aggiornare: esegui supabase/migrations/0003_pagine_appunti.sql nel SQL Editor.' : messaggioErrore(e), 'fail');
+    }
+    return;
+  }
+  await salvaInSospeso();
+  $('progressEsame').hidden = true;
+  $('progressMappa').hidden = false;
+  await mostraZona(h.zona);
 }

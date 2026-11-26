@@ -14,6 +14,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap">
 <link rel="stylesheet" href="assets/css/base.css">
 <link rel="stylesheet" href="assets/css/app.css">
+<link rel="stylesheet" href="assets/css/editor.css">
 </head>
 <body>
 
@@ -105,6 +106,7 @@
 
   <!-- ════ area privata: esami ════ -->
   <section class="vista page page-larga" data-vista="progress" hidden>
+    <div id="progressMappa">
     <header class="page-head pop-section">
       <div class="kicker">MRI progress</div>
       <h1>Mappa del corpo</h1>
@@ -141,6 +143,46 @@
           </div>
         </div>
       </aside>
+    </div>
+    </div>
+
+    <!-- esame aperto: albero delle pagine + pagina -->
+    <div id="progressEsame" class="esame-layout" hidden>
+      <aside class="esame-lato">
+        <a class="esame-indietro" id="lnkZona" href="#/progress">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+          <span id="lnkZonaNome">Zona</span></a>
+        <div class="esame-nome" id="nomeEsame" contenteditable="true" spellcheck="false" title="Clic per rinominare l'esame"></div>
+        <div class="kicker esame-kicker">Pagine di appunti</div>
+        <div class="albero" id="alberoPagine" role="navigation" aria-label="Pagine dell'esame"></div>
+        <p class="hint" id="alberoVuoto" hidden>Ancora nessuna pagina.</p>
+        <button class="albero-nuova" id="btnNuovaPagina" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          Nuova pagina</button>
+      </aside>
+
+      <section class="esame-pagina">
+        <div class="pagina-barra">
+          <div class="briciole" id="briciole" role="navigation" aria-label="Percorso"></div>
+          <span class="spacer"></span>
+          <span class="stato-salvataggio" id="statoSalvataggio" role="status"></span>
+        </div>
+
+        <div id="paginaAperta" hidden>
+          <h1 class="pagina-titolo" id="titoloPagina" contenteditable="true" spellcheck="true" data-placeholder="Senza titolo"></h1>
+          <div id="editorPagina"></div>
+          <p class="hint pagina-aiuto">«/» per inserire un blocco · <b>#</b> titolo · <b>-</b> elenco · <b>1.</b> numerato · <b>[]</b> checklist · <b>!</b> pitfall · <b>&gt;</b> nota · Ctrl+B / I / U per grassetto, corsivo, sottolineato · salvataggio automatico</p>
+        </div>
+
+        <div class="pagina-vuota" id="paginaVuota" hidden>
+          <h2>Inizia gli appunti di questo esame</h2>
+          <p class="lead">Puoi partire da una pagina vuota o creare la struttura di base: Anatomia, Protocollo e sequenze, Pitfall, Diagnosi differenziali, Score e misure.</p>
+          <div class="action-row">
+            <button class="btn-primary" id="btnStrutturaBase" type="button">Crea la struttura di base</button>
+            <button class="btn" id="btnPrimaPagina" type="button">Pagina vuota</button>
+          </div>
+        </div>
+      </section>
     </div>
   </section>
 

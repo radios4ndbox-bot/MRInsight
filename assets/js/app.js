@@ -4,7 +4,7 @@ import { sb, configurato, messaggioErrore } from './sb.js';
 import * as auth from './auth.js';
 import * as inattivita from './inattivita.js';
 import { inserisciLogo, ICONE, copiaTesto } from './ui.js';
-import { apriProgress } from './progress.js';
+import { apriProgress, salvaInSospeso } from './progress.js';
 
 const $ = (id) => document.getElementById(id);
 const ROTTE_PRIVATE = ['progress', 'reports', 'sicurezza'];
@@ -373,6 +373,8 @@ async function esci(scope = 'local', motivo = '') {
   if (stato.registrazione) await auth.annullaRegistrazione(stato.registrazione.factorId);
   stato.registrazione = null;
   stato.provaRls = null;
+  // prima di chiudere la sessione salva la pagina di appunti aperta
+  if (stato.dentro) { try { await salvaInSospeso(); } catch (_) { /* si esce comunque */ } }
   try {
     await auth.esci(scope);
   } catch (_) { /* la sessione locale è comunque cancellata */ }
