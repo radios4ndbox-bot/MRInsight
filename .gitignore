@@ -4,6 +4,8 @@
 node_modules/
 
 # segreti: non devono MAI finire nel repository
+*ecovery*
+*.txt
 .env
 .env.*
 *.pem

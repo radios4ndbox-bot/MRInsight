@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://*.supabase.co; connect-src 'self' https://*.supabase.co wss://*.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex, nofollow">
 <title>MRInsight · by StructuRad</title>
@@ -13,29 +13,201 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap">
 <link rel="stylesheet" href="assets/css/base.css">
-<link rel="stylesheet" href="assets/css/home.css">
+<link rel="stylesheet" href="assets/css/app.css">
 </head>
 <body>
 
 <nav>
-  <a class="nav-brand" href="./">
+  <a class="nav-brand" href="#/esami">
     <span class="nav-title"><span class="nav-logo" id="navLogo"></span><span><b>MRInsight</b> <span class="by">· by StructuRad</span></span></span>
     <span class="nav-sub">Hub personale di risonanza magnetica</span>
   </a>
+  <div class="nav-dock" id="navDock" hidden>
+    <span class="nav-tab-highlight" id="dockHighlight"></span>
+    <a class="dock-item" href="#/esami" data-rotta="esami">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+      Esami</a>
+    <a class="dock-item" href="#/sicurezza" data-rotta="sicurezza">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6l8-3z"/><path d="M9 12l2 2 4-4"/></svg>
+      Sicurezza</a>
+  </div>
+  <div class="nav-right">
+    <span class="live-pill" id="pillSessione" hidden title="Logout automatico dopo 15 minuti di inattività"><span class="live-dot"></span><span id="pillTempo">15:00</span></span>
+    <button class="btn-esci" id="btnEsci" type="button" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3"/><path d="M10 17l-5-5 5-5"/><path d="M5 12h11"/></svg>
+      Esci</button>
+  </div>
 </nav>
 
-<main class="hero">
-  <div class="hero-logo" id="heroLogo"></div>
-  <h1 class="hero-title pop-section"><b>MRInsight</b></h1>
-  <p class="hero-sub pop-section">by StructuRad</p>
-  <p class="hero-lead pop-section">Pre-referti, protocolli, appunti e score per esame RM. L'area privata arriva con la fase 2.</p>
-  <div class="action-row hero-azioni pop-section">
-    <a class="btn-primary" href="test.html">Diagnostica di rete</a>
-  </div>
+<main class="views-port" id="viste">
+
+  <!-- ════ progetto non configurato ════ -->
+  <section class="vista vista-centro" data-vista="config" hidden>
+    <div class="auth-card pop-section">
+      <div class="auth-logo" data-logo></div>
+      <h1 class="auth-titolo"><b>MRInsight</b></h1>
+      <p class="auth-sub">Progetto Supabase non ancora configurato.</p>
+      <p class="hint">Inserisci URL e chiave publishable in <code>assets/js/config.js</code>. Per verificare la rete usa la <a href="test.html">diagnostica</a>.</p>
+    </div>
+  </section>
+
+  <!-- ════ login ════ -->
+  <section class="vista vista-centro" data-vista="login" hidden>
+    <form class="auth-card pop-section" id="formLogin" autocomplete="on" novalidate>
+      <div class="auth-logo" data-logo></div>
+      <h1 class="auth-titolo"><b>MRInsight</b></h1>
+      <p class="auth-sub auth-firma">by StructuRad</p>
+      <div class="avviso" id="msgLogin" hidden></div>
+      <label class="field"><span class="lab">Email</span>
+        <input type="email" id="inEmail" autocomplete="username" required spellcheck="false"></label>
+      <label class="field"><span class="lab">Password</span>
+        <input type="password" id="inPassword" autocomplete="current-password" required></label>
+      <button class="btn-primary btn-largo" type="submit" id="btnAccedi">Accedi</button>
+      <p class="hint auth-nota">Sessione non salvata: chiudendo la scheda esci. Logout automatico dopo 15 minuti di inattività.
+        Su un PC condiviso non far memorizzare la password al browser.</p>
+    </form>
+  </section>
+
+  <!-- ════ verifica TOTP ════ -->
+  <section class="vista vista-centro" data-vista="mfa" hidden>
+    <form class="auth-card pop-section" id="formMfa" novalidate>
+      <div class="auth-icona">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M10.5 18.5h3"/><path d="M9.5 10l1.8 1.8L14.8 8.3"/></svg>
+      </div>
+      <h1 class="auth-titolo">Secondo fattore</h1>
+      <p class="auth-sub">Inserisci il codice a 6 cifre dell'app authenticator.</p>
+      <div class="avviso" id="msgMfa" hidden></div>
+      <label class="field" id="campoFattore" hidden><span class="lab">Dispositivo</span>
+        <select id="selFattore"></select></label>
+      <input class="codice" id="inCodice" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="\d{6}" placeholder="••••••" aria-label="Codice a 6 cifre">
+      <button class="btn-primary btn-largo" type="submit" id="btnVerificaMfa">Verifica</button>
+      <button class="btn-link" type="button" data-azione="annulla-login">Annulla ed esci</button>
+      <details class="auth-aiuto">
+        <summary>Ho perso il telefono</summary>
+        <p>Scegli l'altro dispositivo dall'elenco, se ne hai registrati due. Altrimenti segui la procedura di recupero nel README del progetto: si rimuove il fattore dalla dashboard Supabase e lo si registra di nuovo.</p>
+      </details>
+    </form>
+  </section>
+
+  <!-- ════ prima registrazione TOTP ════ -->
+  <section class="vista vista-centro" data-vista="registra" hidden>
+    <div class="auth-card auth-card-larga pop-section">
+      <h1 class="auth-titolo">Attiva il secondo fattore</h1>
+      <p class="auth-sub">Obbligatorio: senza, l'area privata resta chiusa.</p>
+      <div class="avviso" id="msgRegistra" hidden></div>
+      <div data-registrazione="primo"></div>
+      <button class="btn-link" type="button" data-azione="annulla-login">Annulla ed esci</button>
+    </div>
+  </section>
+
+  <!-- ════ area privata: esami ════ -->
+  <section class="vista page" data-vista="esami" hidden>
+    <header class="page-head pop-section">
+      <div class="kicker">Area privata</div>
+      <h1>Esami</h1>
+      <p class="lead">Le schede (pre-referto, protocollo, appunti, score) arrivano con la fase 3, a partire dalla RM prostata.</p>
+    </header>
+    <div class="avviso" id="avvisoUnFattore" hidden>
+      Hai un solo secondo fattore: se perdi il telefono resti fuori. <a href="#/sicurezza">Aggiungine un altro</a>.
+    </div>
+    <section class="card pop-section">
+      <div class="card-head"><span class="card-num">✓</span><h2 class="card-title">Stato dell'accesso</h2><span class="spacer"></span><span class="badge" id="badgeStato">—</span></div>
+      <div class="card-body"><ul class="checks" id="listaStato"></ul></div>
+    </section>
+  </section>
+
+  <!-- ════ sicurezza ════ -->
+  <section class="vista page" data-vista="sicurezza" hidden>
+    <header class="page-head pop-section">
+      <div class="kicker">Area privata</div>
+      <h1>Sicurezza</h1>
+      <p class="lead">Fattori di accesso e sessioni. Tieni sempre almeno due dispositivi registrati.</p>
+    </header>
+
+    <section class="card pop-section">
+      <div class="card-head"><span class="card-num">01</span><h2 class="card-title">App authenticator</h2><span class="spacer"></span><span class="badge" id="badgeFattori">—</span></div>
+      <div class="card-body">
+        <ul class="fattori" id="listaFattori"></ul>
+        <div class="avviso" id="msgFattori" hidden></div>
+        <div id="nuovoFattore" hidden>
+          <div class="fields">
+            <label class="field"><span class="lab">Nome del dispositivo</span>
+              <input type="text" id="inNomeFattore" maxlength="40" placeholder="es. Tablet, Secondo telefono"></label>
+          </div>
+          <div class="action-row">
+            <button class="btn-primary" type="button" id="btnAvviaFattore">Continua</button>
+            <button class="btn" type="button" id="btnAnnullaFattore">Annulla</button>
+          </div>
+          <div data-registrazione="aggiuntivo"></div>
+        </div>
+        <div class="action-row" id="rigaAggiungi">
+          <button class="btn-secondary" type="button" id="btnAggiungiFattore">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            Aggiungi dispositivo</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="card pop-section">
+      <div class="card-head"><span class="card-num">02</span><h2 class="card-title">Sessioni</h2></div>
+      <div class="card-body">
+        <p class="hint senza-margine">«Esci» chiude questa sessione. «Esci da tutti i dispositivi» revoca anche le sessioni rimaste aperte altrove, per esempio su un PC di reparto dove hai dimenticato di uscire.</p>
+        <div class="action-row">
+          <button class="btn" type="button" data-azione="esci-locale">Esci</button>
+          <button class="btn-pericolo" type="button" data-azione="esci-ovunque">Esci da tutti i dispositivi</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="card pop-section">
+      <div class="card-head"><span class="card-num">03</span><h2 class="card-title">Se perdi il telefono</h2></div>
+      <div class="card-body testo">
+        <ol>
+          <li>Accedi con l'<b>altro dispositivo</b> registrato e rimuovi da qui quello perso.</li>
+          <li>Se non ne hai un altro: entra nella dashboard Supabase con il tuo account (che ha i suoi recovery codes), apri <b>SQL Editor</b> ed esegui
+            <code>delete from auth.mfa_factors where user_id = (select id from auth.users where email = 'TUA_EMAIL');</code></li>
+          <li>Al login successivo MRInsight ti chiederà di registrare un nuovo fattore.</li>
+        </ol>
+      </div>
+    </section>
+  </section>
 </main>
+
+<!-- preavviso di inattività -->
+<div class="banner-inattivita" id="bannerInattivita" role="alertdialog" aria-live="assertive" hidden>
+  <span>Logout per inattività tra <b id="secondiInattivita">60</b> s</span>
+  <button class="btn-primary" type="button" id="btnResta">Resta collegato</button>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<!-- modello: registrazione di un fattore TOTP -->
+<template id="tplRegistrazione">
+  <div class="registrazione">
+    <div class="reg-passo">
+      <span class="reg-num">1</span>
+      <div>
+        <p class="reg-titolo">Inquadra il QR con l'app authenticator</p>
+        <p class="hint">Google Authenticator, Microsoft Authenticator, Aegis, 2FAS…</p>
+        <div class="reg-qr"><img alt="QR code per l'app authenticator" data-qr></div>
+        <p class="hint">Non riesci a inquadrarlo? Inserisci a mano questa chiave. Puoi anche stamparla e conservarla in un luogo sicuro come copia di emergenza.</p>
+        <div class="reg-segreto"><code data-segreto></code><button class="btn" type="button" data-copia-segreto>Copia</button></div>
+      </div>
+    </div>
+    <div class="reg-passo">
+      <span class="reg-num">2</span>
+      <div>
+        <p class="reg-titolo">Inserisci il codice che compare nell'app</p>
+        <input class="codice" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••" aria-label="Codice a 6 cifre" data-codice>
+        <div class="action-row"><button class="btn-primary" type="button" data-conferma>Attiva</button></div>
+      </div>
+    </div>
+  </div>
+</template>
 
 <div class="app-footer">MRInsight · by StructuRad · nessun dato paziente</div>
 
-<script type="module" src="assets/js/home.js"></script>
+<script src="vendor/supabase-js-2.119.2.umd.js"></script>
+<script type="module" src="assets/js/app.js"></script>
 </body>
 </html>
