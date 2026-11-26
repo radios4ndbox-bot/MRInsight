@@ -8,8 +8,8 @@
 // scavalcano la RLS e darebbero accesso completo ai dati.
 // La sicurezza dei contenuti dipende dalla RLS + secondo fattore (aal2), non da questi valori.
 
-export const SUPABASE_URL = '';
-export const SUPABASE_PUBLISHABLE_KEY = '';
+export const SUPABASE_URL = 'https://dtciqxgfewjgtbsgfmsh.supabase.co';
+export const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_AQsLs05zBJt1h9anRyaHDQ_p98taGfC';
 
 export const APP = {
   nome: 'MRInsight',
