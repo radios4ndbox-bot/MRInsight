@@ -173,3 +173,16 @@ input.codice.errore{animation:scuoti .4s ease; border-color:var(--fail);}
 @media (prefers-reduced-motion: reduce){
   .vista, .vista-centro::before, .reg-qr, .fattore, .banner-inattivita{animation:none !important;}
 }
+
+/* ── mappa 3D del corpo ── */
+.corpo3d{position:relative; width:100%; height:min(72vh, 680px); min-height:420px; border-radius:14px; overflow:hidden;
+  background:radial-gradient(ellipse 60% 55% at 50% 45%, rgba(47,125,225,.10), transparent 70%), var(--surface);
+  border:1px solid var(--border);}
+.corpo3d-canvas{display:block; width:100%; height:100%; touch-action:none; cursor:grab; animation:entraVista .6s var(--curva) both;}
+.corpo3d-etichetta{
+  position:absolute; left:0; top:0; pointer-events:none; white-space:nowrap;
+  padding:4px 10px; border-radius:999px; font-size:12px; font-weight:500;
+  color:#fff; background:var(--ink); box-shadow:0 8px 20px -10px rgba(10,22,40,.7);
+}
+.corpo3d-fonte{position:absolute; right:10px; bottom:8px; font-size:10.5px; color:var(--faint);}
+.corpo3d-fonte a{color:inherit;}

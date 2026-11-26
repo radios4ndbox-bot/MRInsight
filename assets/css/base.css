@@ -222,3 +222,7 @@ pre.rapporto{
   .pop-section, .check, .check .ico{animation:none !important; opacity:1; transform:none;}
   .logo-draw path{animation:none; stroke-dashoffset:0; fill-opacity:1; stroke-opacity:0;}
 }
+
+/* prova di disegno 3D (diagnostica) */
+.prova-3d{margin-top:10px; display:flex; justify-content:center;}
+.prova-3d canvas{width:240px; height:160px; border-radius:10px; border:1px solid var(--border); background:var(--surface2);}

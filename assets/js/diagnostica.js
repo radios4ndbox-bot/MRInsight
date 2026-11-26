@@ -4,12 +4,13 @@
 
 import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, APP } from './config.js';
 import { inserisciLogo, popSections, ICONE, copiaTesto } from './ui.js';
+import { infoWebGL, provaDisegno } from './prova3d.js';
 
 const CHIAVE_SESSIONE = 'mrinsight.diagnostica';
 const TIMEOUT_MS = 8000;
 const $ = (id) => document.getElementById(id);
 
-const risultati = { browser: [], sito: [], supabase: [] };
+const risultati = { browser: [], sito: [], grafica: [], supabase: [] };
 
 // ───────────────────────── righe di verifica ─────────────────────────
 
@@ -53,7 +54,7 @@ function aggiornaBadge(gruppo, badgeId) {
 }
 
 function aggiornaPill() {
-  const tutti = [...risultati.browser, ...risultati.sito, ...risultati.supabase];
+  const tutti = [...risultati.browser, ...risultati.sito, ...risultati.grafica, ...risultati.supabase];
   const pill = $('pillStato');
   const fail = tutti.some((x) => x.esito === 'fail');
   const sbOk = risultati.supabase.length && !risultati.supabase.some((x) => x.esito === 'fail');
@@ -153,7 +154,7 @@ async function verificheSito() {
 
   await verifica(G, L, 'Configurazione (config.js)', () => (SUPABASE_URL && SUPABASE_PUBLISHABLE_KEY
     ? { esito: 'ok', dettaglio: `${APP.nome} ${APP.versione} — progetto configurato`, tempo: false }
-    : { esito: 'warn', dettaglio: `${APP.nome} ${APP.versione} — progetto non ancora configurato: inserisci i valori nella scheda 03`, tempo: false }));
+    : { esito: 'warn', dettaglio: `${APP.nome} ${APP.versione} — progetto non ancora configurato: inserisci i valori nella scheda 04`, tempo: false }));
 
   await verifica(G, L, 'Font IBM Plex (Google Fonts)', async () => {
     await Promise.race([document.fonts.ready, new Promise((r) => setTimeout(r, 3000))]);
@@ -165,7 +166,35 @@ async function verificheSito() {
   aggiornaBadge(G, 'badgeSito');
 }
 
-// ───────────────────────── 03 · supabase ─────────────────────────
+// ───────────────────────── 03 · grafica 3D ─────────────────────────
+
+async function verificheGrafica() {
+  const L = 'listaGrafica', G = 'grafica';
+  let info = { disponibile: false };
+
+  await verifica(G, L, 'WebGL', () => {
+    info = infoWebGL();
+    if (!info.disponibile) return { esito: 'fail', dettaglio: 'non disponibile: disattivato dal browser o dai criteri dell\'ospedale. Si userà la mappa 2D.', tempo: false };
+    return { esito: 'ok', dettaglio: `${info.versione} · texture max ${info.maxTexture}px · indici 32 bit ${info.indici32 ? 'sì' : 'no'}`, tempo: false };
+  });
+  if (!info.disponibile) { aggiornaBadge(G, 'badgeGrafica'); return; }
+
+  await verifica(G, L, 'Scheda grafica', () => (info.software
+    ? { esito: 'warn', dettaglio: `${info.renderer} — disegno in software (senza accelerazione): il 3D sarà lento, meglio la mappa 2D`, tempo: false }
+    : { esito: 'ok', dettaglio: `${info.renderer} (accelerazione hardware)`, tempo: false }));
+
+  await verifica(G, L, 'Prova di disegno (3 s)', async () => {
+    const r = await provaDisegno($('canvasProva'));
+    const det = `${Math.round(r.fps)} fotogrammi/s con ${r.triangoli.toLocaleString('it-IT')} triangoli · picco ${Math.round(r.p95ms)} ms`;
+    if (r.fps >= 45) return { esito: 'ok', dettaglio: `${det} — fluido`, tempo: false };
+    if (r.fps >= 20) return { esito: 'warn', dettaglio: `${det} — usabile, userò un modello più leggero`, tempo: false };
+    return { esito: 'fail', dettaglio: `${det} — troppo lento: si userà la mappa 2D`, tempo: false };
+  });
+
+  aggiornaBadge(G, 'badgeGrafica');
+}
+
+// ───────────────────────── 04 · supabase ─────────────────────────
 
 function controllaUrl(url) {
   let u;
@@ -296,7 +325,7 @@ async function verificheSupabase() {
   scriviRapporto();
 }
 
-// ───────────────────────── 04 · rapporto ─────────────────────────
+// ───────────────────────── 05 · rapporto ─────────────────────────
 
 function scriviRapporto() {
   const b = infoBrowser();
@@ -307,7 +336,7 @@ function scriviRapporto() {
     `Browser: ${b.nome} ${b.versione}`,
     '',
   ];
-  const sezioni = [['BROWSER', 'browser'], ['SITO', 'sito'], ['SUPABASE', 'supabase']];
+  const sezioni = [['BROWSER', 'browser'], ['SITO', 'sito'], ['GRAFICA 3D', 'grafica'], ['SUPABASE', 'supabase']];
   const simbolo = { ok: '[OK]  ', warn: '[!]   ', fail: '[ERR] ', skip: '[--]  ' };
   for (const [titolo, g] of sezioni) {
     righe.push(titolo);
@@ -358,6 +387,7 @@ async function avvia() {
 
   await verificheBrowser();
   await verificheSito();
+  await verificheGrafica();
   aggiornaPill();
   scriviRapporto();
   if ($('inUrl').value && $('inKey').value) await verificheSupabase();

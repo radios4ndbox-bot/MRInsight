@@ -16,7 +16,9 @@ assets/css/                stile StructuRad in blu
 assets/js/config.js        URL progetto + chiave PUBLISHABLE (pubblici)
 assets/js/                 moduli ES
 assets/img/                logo StructuRad
+assets/models/corpo.bin    modello 3D del corpo (BodyParts3D, CC BY 4.0)
 vendor/                    supabase-js in copia locale (nessun CDN)
+tools/                     script di sviluppo (non pubblicati nel sito)
 supabase/migrations/       migrazioni SQL da eseguire nel SQL Editor
 .github/workflows/         keep-alive del progetto (piano Free)
 ```
@@ -83,4 +85,5 @@ L'indirizzo sarà `https://radios4ndbox-bot.github.io/MRInsight/`, e la diagnost
 ## Licenze
 
 `vendor/supabase-js-*.umd.js` è distribuito con licenza MIT (vedi `vendor/supabase-js.LICENSE`).
+Il modello 3D `assets/models/corpo.bin` è ricavato da BodyParts3D, © The Database Center for Life Science, licenza CC BY 4.0 (dettagli in `assets/models/ATTRIBUTION.md`).
 Il logo StructuRad appartiene all'autore.
