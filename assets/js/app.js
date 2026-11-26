@@ -217,7 +217,7 @@ async function entra() {
   inattivita.avvia({
     avviso: (s) => { $('bannerInattivita').hidden = false; $('secondiInattivita').textContent = s; $('pillSessione').classList.add('scade'); },
     ripreso: () => { $('bannerInattivita').hidden = true; $('pillSessione').classList.remove('scade'); },
-    scaduto: () => esci('local', 'Sessione chiusa dopo 15 minuti di inattività.'),
+    scaduto: () => esci('local', 'Sessione chiusa dopo 1 ora di inattività.'),
   });
   if (!ROTTE_PRIVATE.includes(rottaCorrente())) location.hash = `#/${ROTTA_INIZIALE}`;
   else await suRotta();

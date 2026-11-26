@@ -84,7 +84,7 @@ L'indirizzo sarà `https://radios4ndbox-bot.github.io/MRInsight/`, e la diagnost
 
 - Il progetto va in pausa **dopo 1 settimana di inattività**. Si riattiva con un clic dalla dashboard.
 - Il piano Free **non ha backup automatici**: l'esportazione della fase 6 è il tuo backup.
-- Il timeout di inattività lato server è solo su Pro, per questo il logout dopo 15 minuti è gestito dal browser.
+- Il timeout di inattività lato server è solo su Pro, per questo il logout dopo 1 ora di inattività è gestito dal browser. Ricaricare la pagina non fa uscire; chiudere la scheda sì.
 
 ## Licenze
 

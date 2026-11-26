@@ -2,13 +2,14 @@
 // (Il timeout lato server di Supabase è disponibile solo dal piano Pro.)
 //
 // L'ultima attività è salvata in sessionStorage, così anche ricaricando la
-// pagina dopo 15 minuti di assenza si esce comunque.
+// pagina dopo 1 ora di assenza si esce comunque; ricaricare prima non fa uscire.
 
 const CHIAVE = 'mrinsight.ultimaAttivita';
-const EVENTI = ['pointerdown', 'keydown', 'wheel', 'touchstart', 'scroll'];
+// anche il solo movimento del mouse conta (es. lettura degli appunti): le scritture restano limitate a una ogni 5 s
+const EVENTI = ['pointermove', 'pointerdown', 'keydown', 'wheel', 'touchstart', 'scroll'];
 
-export const LIMITE_MS = 15 * 60 * 1000;
-export const PREAVVISO_MS = 60 * 1000;
+export const LIMITE_MS = 60 * 60 * 1000;
+export const PREAVVISO_MS = 2 * 60 * 1000;
 
 let timer = null;
 let attivo = false;
